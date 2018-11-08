@@ -28,6 +28,32 @@ GazeboMavlinkInterface::~GazeboMavlinkInterface() {
     updateConnection_->~Connection();
 }
 
+namespace {
+  std::string hostname_to_ip(const std::string& hostname) {
+    int sockfd;
+    struct addrinfo hints = {}, *servinfo=nullptr, *p=nullptr;
+    struct sockaddr_in *h=nullptr;
+    int rv;
+
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+
+    std::cout << "checking for host: " << hostname << std::endl;
+
+    if ((rv = getaddrinfo(hostname.c_str(), "http", &hints, &servinfo)) != 0) {
+      fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+      return "";
+    }
+
+    h = (struct sockaddr_in*)servinfo->ai_addr;
+    char ip_raw[16];
+    strcpy(ip_raw, inet_ntoa(h->sin_addr));
+    freeaddrinfo(servinfo);
+
+    return std::string(ip_raw);
+  }
+}
+
 void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   // Store the pointer to the model.
   model_ = _model;
@@ -266,6 +292,7 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   if (_sdf->HasElement("mavlink_addr")) {
     std::string mavlink_addr = _sdf->GetElement("mavlink_addr")->Get<std::string>();
     if (mavlink_addr != "INADDR_ANY") {
+      mavlink_addr = hostname_to_ip(mavlink_addr);
       mavlink_addr_ = inet_addr(mavlink_addr.c_str());
       if (mavlink_addr_ == INADDR_NONE) {
         fprintf(stderr, "invalid mavlink_addr \"%s\"\n", mavlink_addr.c_str());
@@ -287,6 +314,7 @@ void GazeboMavlinkInterface::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf
   if (_sdf->HasElement("qgc_addr")) {
     std::string qgc_addr = _sdf->GetElement("qgc_addr")->Get<std::string>();
     if (qgc_addr != "INADDR_ANY") {
+      qgc_addr = hostname_to_ip(qgc_addr);
       qgc_addr_ = inet_addr(qgc_addr.c_str());
       if (qgc_addr_ == INADDR_NONE) {
         fprintf(stderr, "invalid qgc_addr \"%s\"\n", qgc_addr.c_str());
