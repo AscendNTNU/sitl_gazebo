@@ -554,9 +554,7 @@ void GeotaggedImagesPlugin::_handle_request_camera_settings(const mavlink_messag
         MAVLINK_COMM_1,
         &msg,
         0,                      // time_boot_ms
-        CAMERA_MODE_IMAGE,      // Camera Mode
-        NAN,                    // Zoom level
-        NAN);                   // Focus level
+        CAMERA_MODE_IMAGE);      // Camera Mode
     _send_mavlink_message(&msg, srcaddr);
 }
 
