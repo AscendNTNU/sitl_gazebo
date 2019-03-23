@@ -27,7 +27,7 @@ option(SEND_VISION_ESTIMATION_DATA "Send Mavlink VISION_POSITION_ESTIMATE msgs" 
 option(SEND_ODOMETRY_DATA "Send Mavlink ODOMETRY msgs" OFF)
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost 1.58 REQUIRED COMPONENTS system thread timer)
+find_package(Boost 1.58 REQUIRED COMPONENTS system thread timer filesystem)
 find_package(gazebo REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_program(px4 REQUIRED)
@@ -123,7 +123,7 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wno-deprecated-declarations")
 
 include(EnableC++XX)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS} -Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 
 set(GAZEBO_MSG_INCLUDE_DIRS)
 foreach(ITR ${GAZEBO_INCLUDE_DIRS})
@@ -400,6 +400,8 @@ install(FILES ${worlds_list} DESTINATION ${RESOURCE_PATH}/worlds)
 
 configure_file(src/setup.sh.in "${CMAKE_CURRENT_BINARY_DIR}/setup.sh" @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.sh DESTINATION ${RESOURCE_PATH})
+
+install(FILES ${PROJECT_SOURCE_DIR}/package.xml DESTINATION ${RESOURCE_PATH})
 
 #############
 ## Testing ##
